@@ -1,0 +1,31 @@
+
+{
+  "uid": "wordle",
+  "type": "app",
+  "config": {
+    "description": "This is a clone of the popular word game Wordle. It's a simple app that allows you to play Wordle in HubSpot. HubSpot does not own the rights to the Wordle name, trademarks, or game.",
+    "name": "Wordle Clone by the HubSpot Developer Relations Team",
+    "distribution": "private",
+    "auth": {
+      "type": "static",
+      "redirectUrls": ["https://your-wordle-app.vercel.app/oauth-callback"],
+      "requiredScopes": [
+        "crm.objects.contacts.read",
+        "crm.objects.contacts.write"
+      ],
+      "optionalScopes": [],
+      "conditionallyRequiredScopes": []
+    },
+    "permittedUrls": {
+      "fetch": [],
+      "iframe": ["https://*.vercel.app", "https://your-wordle-app.vercel.app"],
+      "img": []
+    },
+    "support": {
+      "supportEmail": "your-support@example.com",
+      "documentationUrl": "https://your-docs-url.com",
+      "supportUrl": "https://your-support-url.com",
+      "supportPhone": "+1234567890"
+    }
+  }
+}
