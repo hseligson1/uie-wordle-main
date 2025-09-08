@@ -1,0 +1,15 @@
+{
+  "uid": "get_started_card",
+  "type": "card",
+  "config": {
+    "name": "Wordle",
+    "description": "A Wordle game card that can be played directly within HubSpot CRM contact records.",
+    "previewImage": {
+      "file": "../assets/wordle.example.png",
+      "altText": "Wordle game interface showing a word guessing game with colored letter tiles"
+    },
+    "entrypoint": "/Wordle.tsx",
+    "location": "crm.record.tab",
+    "objectTypes": ["CONTACT"]
+  }
+}
