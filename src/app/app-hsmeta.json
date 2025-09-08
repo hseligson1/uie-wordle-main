@@ -8,6 +8,7 @@
     "distribution": "private",
     "auth": {
       "type": "static",
+      "redirectUrls": ["https://your-wordle-app.vercel.app/oauth-callback"],
       "requiredScopes": [
         "crm.objects.contacts.read",
         "crm.objects.contacts.write"
@@ -17,7 +18,7 @@
     },
     "permittedUrls": {
       "fetch": [],
-      "iframe": ["https://your-wordle-app.vercel.app"],
+      "iframe": ["https://*.vercel.app", "https://your-wordle-app.vercel.app"],
       "img": []
     },
     "support": {
