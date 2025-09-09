@@ -4,15 +4,22 @@
  * Handles core game functionality including:
  * - Managing game state (guesses, current word, game status)
  * - Processing user input and guess validation
- * - Fetching random words from the serverless backend
+ * - Fetching random words from the Lambda function backend
  * - Displaying game UI and coordinating with GuessRow components
  */
 
 import React, { useState, useEffect } from "react";
-import { Box, Button, Flex, Input } from "@hubspot/ui-extensions";
+import { Box, Button, Flex, Input, hubspot } from "@hubspot/ui-extensions";
 import { GuessRow } from "./GuessRow";
 
-export const GameBoard = ({ runServerless, sendAlert }) => {
+// IMPORTANT: Replace this with your actual Lambda function URL
+const LAMBDA_ENDPOINT = "https://your-lambda-url.amazonaws.com/getRandomWord";
+// Alternative examples:
+// const LAMBDA_ENDPOINT = "https://your-app.vercel.app/api/getRandomWord";
+// const LAMBDA_ENDPOINT = "https://your-site.netlify.app/.netlify/functions/getRandomWord";
+
+// Notice: Removed runServerless from props - no longer needed!
+export const GameBoard = ({ sendAlert }) => {
   const [currentGuess, setCurrentGuess] = useState("");
   const [guesses, setGuesses] = useState<string[]>([]);
   const [targetWord, setTargetWord] = useState("REACT");
@@ -52,7 +59,8 @@ export const GameBoard = ({ runServerless, sendAlert }) => {
     }
   };
 
-  // Fetches a new random word from the serverless backend
+  // OLD VERSION - This is what you had before:
+  /*
   const fetchNewWord = async () => {
     try {
       setIsLoading(true);
@@ -67,6 +75,80 @@ export const GameBoard = ({ runServerless, sendAlert }) => {
         message: "Failed to fetch new word.",
         type: "error"
       });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  */
+
+  // NEW VERSION - Using hubspot.fetch() to call your Lambda function
+  const fetchNewWord = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Make HTTP request to your Lambda function
+      const response = await hubspot.fetch(LAMBDA_ENDPOINT, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      // Check if the HTTP request was successful
+      if (!response.ok) {
+        // Try to get error details from the response
+        let errorMessage = `HTTP ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          // If we can't parse the error response, use the status
+        }
+        throw new Error(errorMessage);
+      }
+      
+      // Parse the JSON response from your Lambda function
+      const data = await response.json();
+      
+      // Extract the word from the response
+      // The exact property name depends on how your Lambda function returns data
+      const word = data.word; // Adjust this based on your Lambda function's response format
+      
+      if (!word) {
+        throw new Error("No word received from server");
+      }
+      
+      // Convert to uppercase for consistency with Wordle
+      const upperWord = word.toUpperCase();
+      
+      console.log(`👀 Are you peeking? Ok, well the word is ${upperWord}!`);
+      setTargetWord(upperWord);
+      
+    } catch (error) {
+      console.error('Error fetching word:', error);
+      
+      // More specific error messages based on the type of error
+      let userMessage = "Failed to fetch new word.";
+      
+      if (error.message.includes("404")) {
+        userMessage = "Word service not found. Please contact support.";
+      } else if (error.message.includes("500")) {
+        userMessage = "Word service is temporarily down. Please try again.";
+      } else if (error.message.includes("Failed to fetch")) {
+        userMessage = "Network error. Please check your connection.";
+      } else if (error.message.includes("No word received")) {
+        userMessage = "Invalid response from word service.";
+      }
+      
+      sendAlert({
+        message: userMessage,
+        type: "error"
+      });
+      
+      // Keep the default word so the game can still be played
+      console.log("Using fallback word: REACT");
+      setTargetWord("REACT");
+      
     } finally {
       setIsLoading(false);
     }
@@ -89,8 +171,8 @@ export const GameBoard = ({ runServerless, sendAlert }) => {
 
         <Box flex={1}>
           {gameEnded ? (
-            <Button onClick={resetGame}>
-              Reset Game
+            <Button onClick={resetGame} disabled={isLoading}>
+              {isLoading ? "Loading..." : "Reset Game"}
             </Button>
           ) : (
             <Button onClick={handleSubmitGuess}>
