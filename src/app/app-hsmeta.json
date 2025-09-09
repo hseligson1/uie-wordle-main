@@ -17,7 +17,7 @@
     },
     "permittedUrls": {
       "fetch": [],
-      "iframe": ["https://*.vercel.app", "https://your-wordle-app.vercel.app"],
+      "iframe": ["https://your-wordle-app.vercel.app"],
       "img": []
     },
     "support": {
