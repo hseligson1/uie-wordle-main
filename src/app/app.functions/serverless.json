@@ -1,8 +1,0 @@
-{
-  "appFunctions": {
-    "getRandomWord": {
-      "file": "getRandomWord.js",
-      "secrets": []
-    }
-  }
-}
