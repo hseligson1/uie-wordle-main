@@ -24,7 +24,7 @@ import { GameBoard } from "./components/GameBoard";
 // Configuration for your Lambda function endpoint
 const LAMBDA_CONFIG = {
   // Replace this with your actual Lambda function URL
-  endpoint: 'https://your-lambda-url.amazonaws.com/getRandomWord',
+  endpoint: 'https://us6c1013ue.execute-api.us-east-1.amazonaws.com/PROD',
   // Alternative endpoints for different platforms:
   // Vercel: 'https://your-app.vercel.app/api/getRandomWord'
   // Netlify: 'https://your-site.netlify.app/.netlify/functions/getRandomWord'
@@ -66,8 +66,9 @@ const Extension = ({ context, sendAlert }) => {
       
       // Show user-friendly error message
       sendAlert({
-        type: 'danger',
-        message: `Failed to get random word: ${error.message}`
+        title: "Error",
+        message: `Failed to get random word: ${error.message}`,
+        variant: "danger"
       });
       
       // Return fallback word or re-throw error
@@ -82,9 +83,8 @@ const Extension = ({ context, sendAlert }) => {
       <GameInstructions />
       <Divider />
       <GameBoard 
+        sendAlert={sendAlert}
         getRandomWord={getRandomWord}
-        sendAlert={sendAlert} 
-        userContext={context}
       />
       <Text variant="microcopy">
         * HubSpot does not own the rights to the Wordle name, trademarks, or game.
@@ -95,9 +95,12 @@ const Extension = ({ context, sendAlert }) => {
 
 // Define the extension to be run within the Hubspot CRM
 // Notice: No longer need runServerlessFunction parameter
-hubspot.extend(({ context, actions }) => (
-  <Extension
-    context={context}
-    sendAlert={actions.addAlert}
-  />
-));
+hubspot.extend(({ context, actions }) => {
+  const { addAlert } = actions as any;
+  return (
+    <Extension
+      context={context}
+      sendAlert={addAlert}
+    />
+  );
+});

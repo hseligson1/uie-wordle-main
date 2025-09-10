@@ -9,17 +9,13 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { Box, Button, Flex, Input, hubspot } from "@hubspot/ui-extensions";
+import { Box, Button, Flex, Input } from "@hubspot/ui-extensions";
 import { GuessRow } from "./GuessRow";
 
-// IMPORTANT: Replace this with your actual Lambda function URL
-const LAMBDA_ENDPOINT = "https://your-lambda-url.amazonaws.com/getRandomWord";
-// Alternative examples:
-// const LAMBDA_ENDPOINT = "https://your-app.vercel.app/api/getRandomWord";
-// const LAMBDA_ENDPOINT = "https://your-site.netlify.app/.netlify/functions/getRandomWord";
+// Word fetching is now provided via prop from parent
 
 // Notice: Removed runServerless from props - no longer needed!
-export const GameBoard = ({ sendAlert }) => {
+export const GameBoard = ({ sendAlert, getRandomWord }) => {
   const [currentGuess, setCurrentGuess] = useState("");
   const [guesses, setGuesses] = useState<string[]>([]);
   const [targetWord, setTargetWord] = useState("REACT");
@@ -41,11 +37,11 @@ export const GameBoard = ({ sendAlert }) => {
 
   const handleSubmitGuess = () => {
     if (currentGuess.length !== 5) {
-      sendAlert({ message: "Guess must be 5 letters!", type: "danger" });
+      sendAlert({ title: "Invalid Guess", message: "Guess must be 5 letters!", variant: "danger" });
       return;
     }
     if (guesses.length >= 5) {
-      sendAlert({ message: "Game over! You've used all 5 guesses.", type: "danger" });
+      sendAlert({ title: "Game Over", message: "You've used all 5 guesses.", variant: "danger" });
       return;
     }
 
@@ -54,7 +50,7 @@ export const GameBoard = ({ sendAlert }) => {
     setCurrentGuess("");
 
     if (upperGuess === targetWord) {
-      sendAlert({ message: "Congratulations! You've won! 🎉", type: "success" });
+      sendAlert({ title: "Congratulations!", message: "You've won! 🎉", variant: "success" });
       setIsGameOver(true);
     }
   };
@@ -72,8 +68,9 @@ export const GameBoard = ({ sendAlert }) => {
     } catch (error) {
       console.error('Error:', error);
       sendAlert({
+        title: "Error",
         message: "Failed to fetch new word.",
-        type: "error"
+        variant: "error"
       });
     } finally {
       setIsLoading(false);
@@ -81,46 +78,16 @@ export const GameBoard = ({ sendAlert }) => {
   };
   */
 
-  // NEW VERSION - Using hubspot.fetch() to call your Lambda function
+  // Uses getRandomWord provided by parent component
   const fetchNewWord = async () => {
     try {
       setIsLoading(true);
-      
-      // Make HTTP request to your Lambda function
-      const response = await hubspot.fetch(LAMBDA_ENDPOINT, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      
-      // Check if the HTTP request was successful
-      if (!response.ok) {
-        // Try to get error details from the response
-        let errorMessage = `HTTP ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          // If we can't parse the error response, use the status
-        }
-        throw new Error(errorMessage);
-      }
-      
-      // Parse the JSON response from your Lambda function
-      const data = await response.json();
-      
-      // Extract the word from the response
-      // The exact property name depends on how your Lambda function returns data
-      const word = data.word; // Adjust this based on your Lambda function's response format
-      
+      const data = await getRandomWord?.('normal');
+      const word = data?.word;
       if (!word) {
         throw new Error("No word received from server");
       }
-      
-      // Convert to uppercase for consistency with Wordle
       const upperWord = word.toUpperCase();
-      
       console.log(`👀 Are you peeking? Ok, well the word is ${upperWord}!`);
       setTargetWord(upperWord);
       
@@ -141,8 +108,9 @@ export const GameBoard = ({ sendAlert }) => {
       }
       
       sendAlert({
+        title: "Error",
         message: userMessage,
-        type: "error"
+        variant: "error"
       });
       
       // Keep the default word so the game can still be played
