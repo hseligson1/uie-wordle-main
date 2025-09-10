@@ -24,7 +24,7 @@ import { GameBoard } from "./components/GameBoard";
 // Configuration for your Lambda function endpoint
 const LAMBDA_CONFIG = {
   // Replace this with your actual Lambda function URL
-  endpoint: 'https://us6c1013ue.execute-api.us-east-1.amazonaws.com/PROD',
+  endpoint: 'https://us6c1013ue.execute-api.us-east-1.amazonaws.com/PROD/getRandomWord',
   // Alternative endpoints for different platforms:
   // Vercel: 'https://your-app.vercel.app/api/getRandomWord'
   // Netlify: 'https://your-site.netlify.app/.netlify/functions/getRandomWord'

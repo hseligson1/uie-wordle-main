@@ -16,8 +16,8 @@
       "conditionallyRequiredScopes": []
     },
     "permittedUrls": {
-      "fetch": [],
-      "iframe": ["https://us6c1013ue.execute-api.us-east-1.amazonaws.com/PROD"],
+      "fetch": ["https://us6c1013ue.execute-api.us-east-1.amazonaws.com/PROD/getRandomWord"],
+      "iframe": [],
       "img": []
     },
     "support": {
