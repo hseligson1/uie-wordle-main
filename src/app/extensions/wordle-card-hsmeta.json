@@ -8,7 +8,7 @@
       "file": "../assets/wordle.example.png",
       "altText": "Wordle game interface showing a word guessing game with colored letter tiles"
     },
-    "entrypoint": "/app/extensions/Wordle.tsx",
+    "entrypoint": "/Wordle.tsx",
     "location": "crm.record.tab",
     "objectTypes": ["CONTACT"]
   }
