@@ -36,14 +36,17 @@ const Extension = ({ context, sendAlert }) => {
   const getRandomWord = async (difficulty = 'normal') => {
     try {
       console.log('Fetching random word from Lambda function...');
+      console.log('Endpoint:', LAMBDA_CONFIG.endpoint);
       
       // Use hubspot.fetch() to call your Lambda function
-      const response = await hubspot.fetch(`${LAMBDA_CONFIG.endpoint}?difficulty=${difficulty}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
+      // Try without difficulty parameter first since API works without it
+      const response = await hubspot.fetch(LAMBDA_CONFIG.endpoint, {
+        method: 'GET'
       });
+
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      console.log('Response headers:', response.headers);
 
       // Check if the request was successful
       if (!response.ok) {
@@ -52,6 +55,7 @@ const Extension = ({ context, sendAlert }) => {
 
       // Parse the JSON response
       const data = await response.json();
+      console.log('Response data:', data);
       
       // Validate the response has the expected structure
       if (!data.word) {
@@ -63,15 +67,19 @@ const Extension = ({ context, sendAlert }) => {
 
     } catch (error) {
       console.error('Error fetching random word:', error);
-      
-      // Show user-friendly error message
-      sendAlert({
-        title: "Error",
-        message: `Failed to get random word: ${error.message}`,
-        variant: "danger"
+      console.error('Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
       });
       
-      // Return fallback word or re-throw error
+      // Check if it's a network/CORS error
+      if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
+        console.log('This appears to be a CORS or network issue with HubSpot fetch');
+      }
+      
+      // Don't show error alert here - let the GameBoard handle it
+      // This prevents double error messages
       throw error;
     }
   };

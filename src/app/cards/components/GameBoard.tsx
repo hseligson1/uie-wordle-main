@@ -14,6 +14,12 @@ import { GuessRow } from "./GuessRow";
 
 // Word fetching is now provided via prop from parent
 
+// Fallback word list for when API fails
+const FALLBACK_WORDS = [
+  'REACT', 'WORLD', 'GAMES', 'HAPPY', 'LEARN', 'BUILD', 'SHARE', 'DREAM',
+  'PEACE', 'LOVE', 'HOPE', 'JOY', 'FUN', 'TEAM', 'CODE', 'TECH'
+];
+
 // Notice: Removed runServerless from props - no longer needed!
 export const GameBoard = ({ sendAlert, getRandomWord }) => {
   const [currentGuess, setCurrentGuess] = useState("");
@@ -87,6 +93,8 @@ export const GameBoard = ({ sendAlert, getRandomWord }) => {
   const fetchNewWord = async () => {
     try {
       setIsLoading(true);
+      console.log('Attempting to fetch word from API...');
+      
       const data = await getRandomWord?.('normal');
       const word = data?.word;
       if (!word) {
@@ -97,29 +105,19 @@ export const GameBoard = ({ sendAlert, getRandomWord }) => {
       setTargetWord(upperWord);
       
     } catch (error) {
-      console.error('Error fetching word:', error);
+      console.error('Error fetching word from API:', error);
       
-      // More specific error messages based on the type of error
-      let userMessage = "Failed to fetch new word.";
+      // Use a random fallback word so the game can still be played
+      const randomFallback = FALLBACK_WORDS[Math.floor(Math.random() * FALLBACK_WORDS.length)];
+      console.log(`Using fallback word: ${randomFallback}`);
+      setTargetWord(randomFallback);
       
-      if (error.message.includes("404")) {
-        userMessage = "Word service not found. Please contact support.";
-      } else if (error.message.includes("500")) {
-        userMessage = "Word service is temporarily down. Please try again.";
-      } else if (error.message.includes("Failed to fetch")) {
-        userMessage = "Network error. Please check your connection.";
-      } else if (error.message.includes("No word received")) {
-        userMessage = "Invalid response from word service.";
-      }
-      
+      // Show a warning but don't block the game
       sendAlert({
-        title: "Error",
-        message: userMessage,
-        variant: "error"
+        title: "Using Offline Mode",
+        message: `Couldn't fetch a random word from the API (${error.message}), using "${randomFallback}" instead. Check console for details.`,
+        variant: "warning"
       });
-      
-      // Don't set a fallback word - let the user retry
-      console.log("Word fetching failed, game cannot start");
       
     } finally {
       setIsLoading(false);
