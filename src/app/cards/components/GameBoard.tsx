@@ -18,11 +18,12 @@ import { GuessRow } from "./GuessRow";
 export const GameBoard = ({ sendAlert, getRandomWord }) => {
   const [currentGuess, setCurrentGuess] = useState("");
   const [guesses, setGuesses] = useState<string[]>([]);
-  const [targetWord, setTargetWord] = useState("REACT");
+  const [targetWord, setTargetWord] = useState("");
   const [isGameOver, setIsGameOver] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const gameEnded = isGameOver || guesses.length >= 5;
+  const gameReady = targetWord && !isLoading;
 
   useEffect(() => {
     fetchNewWord();
@@ -36,6 +37,10 @@ export const GameBoard = ({ sendAlert, getRandomWord }) => {
   };
 
   const handleSubmitGuess = () => {
+    if (!targetWord) {
+      sendAlert({ title: "Game Not Ready", message: "Please wait for the word to load.", variant: "warning" });
+      return;
+    }
     if (currentGuess.length !== 5) {
       sendAlert({ title: "Invalid Guess", message: "Guess must be 5 letters!", variant: "danger" });
       return;
@@ -113,9 +118,8 @@ export const GameBoard = ({ sendAlert, getRandomWord }) => {
         variant: "error"
       });
       
-      // Keep the default word so the game can still be played
-      console.log("Using fallback word: REACT");
-      setTargetWord("REACT");
+      // Don't set a fallback word - let the user retry
+      console.log("Word fetching failed, game cannot start");
       
     } finally {
       setIsLoading(false);
@@ -132,8 +136,8 @@ export const GameBoard = ({ sendAlert, getRandomWord }) => {
             name="currentGuess"
             value={currentGuess}
             onChange={setCurrentGuess}
-            placeholder="Enter 5-letter word"
-            readOnly={gameEnded}
+            placeholder={gameReady ? "Enter 5-letter word" : "Loading word..."}
+            readOnly={gameEnded || !gameReady}
           />
         </Box>
 
@@ -143,19 +147,21 @@ export const GameBoard = ({ sendAlert, getRandomWord }) => {
               {isLoading ? "Loading..." : "Reset Game"}
             </Button>
           ) : (
-            <Button onClick={handleSubmitGuess}>
-              Guess
+            <Button onClick={handleSubmitGuess} disabled={!gameReady || isLoading}>
+              {isLoading ? "Loading..." : "Guess"}
             </Button>
           )}
         </Box>
       </Flex>
 
       {/* Game board display showing previous guesses */}
-      <Flex direction="column" gap="md">
-        {guesses.map((guess, index) => (
-          <GuessRow key={index} guess={guess} targetWord={targetWord} />
-        ))}
-      </Flex>
+      {targetWord && (
+        <Flex direction="column" gap="md">
+          {guesses.map((guess, index) => (
+            <GuessRow key={index} guess={guess} targetWord={targetWord} />
+          ))}
+        </Flex>
+      )}
     </>
   );
 };
