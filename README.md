@@ -26,7 +26,7 @@ This project showcases how to build interactive games within HubSpot's CRM using
 │                 │    │                  │    │                 │
 │  UI Extension   │───▶│  Public HTTPS    │───▶│ Word Generator  │
 │ (React/TSX)     │    │   Endpoint       │    │   Function      │
-│                 │    │                 │    │                 │
+│                 │    │                  │    │                 │
 │ hubspot.fetch() │◀───│ CORS Headers     │◀───│ JSON Response   │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
 ```
@@ -208,8 +208,8 @@ curl "https://your-endpoint.amazonaws.com/prod/nonexistent"
 # Deploy to HubSpot
 hs project upload
 
-# Check deployment status
-hs project info
+# Check deployment status and build status
+hs project list-builds
 ```
 
 ### AWS Lambda Deployment
@@ -220,7 +220,7 @@ hs project info
 
 ## Migration Notes
 
-### From HubSpot Serverless Functions (2023.2) to External Lambda (2025.2)
+### From HubSpot Developer Platform with Severless Functions (2023.2) to (2025.2) with External Lambda Functions
 
 **Key Changes**:
 - Removed `src/app/app.functions/` directory
