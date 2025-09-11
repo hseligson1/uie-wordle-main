@@ -267,8 +267,8 @@ const result = await response.json();
 
 **Deployment Issues**:
 - Verify HubSpot CLI version: `hs --version` (should be 7.6.0+)
-- Check Node.js version: `node --version` (should be 18+)
-- Ensure proper authentication: `hs account info`
+- Check Node.js version: `node --version` (should be 20+)
+- Ensure proper authentication: `hs account auth`
 
 ### Debug Mode
 
