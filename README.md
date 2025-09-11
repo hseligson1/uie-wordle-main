@@ -63,7 +63,7 @@ This project showcases how to build interactive games within HubSpot's CRM using
 
 3. **Initialize the project**:
    ```bash
-   hs project dev
+   hs project upload
    ```
 
 ### Lambda Function Setup
